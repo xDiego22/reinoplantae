@@ -1,0 +1,21 @@
+{
+    "name": "plantae/bin",
+    "description": "sistema de clasificacion del reino de las plantas",
+    "type": "project",
+    "license": "001",
+    "autoload": {
+        "psr-4": {
+            "bin\\": "bin/",
+            "config\\": "bin/config",
+            "model\\":"bin/model",
+            "component\\":"bin/component"
+        }
+    },
+    "authors": [
+        {
+            "name": "grupo de artes marciales"
+        }
+    ],
+    "minimum-stability": "beta",
+    "require": {}
+}

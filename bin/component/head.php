@@ -8,3 +8,4 @@
 <link rel="stylesheet" href="assets/css/bootstrap.min.css">
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="assets/css/bs-stepper.min.css">

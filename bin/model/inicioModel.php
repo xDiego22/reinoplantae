@@ -7,18 +7,22 @@ use Exception;
 
 class inicioModel extends connectDB{
     
-    public function buscarPlanta($caracteristicasBusqueda) {
+    public function buscarPlanta($habitat,$inflorescencia, $filogenia, $reproduccion) {
 
 
         try {
             $bd = $this->conexion();
             $bd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $sql = 'SELECT plantas.nombre as nombre, habitats.habitat as habitat,inflorescencia.tipo as inflorescencia,filogenia.tipo as filogenia,reproduccion.descripcion as reproduccion FROM plantas, reproduccion, filogenia, habitats, inflorescencia WHERE plantas.id_habitat = habitats.id AND plantas.id_inflorescencia = inflorescencia.id AND plantas.id_filogenia = filogenia.id AND plantas.id_reproduccion = reproduccion.id --';
+            //plantas traidas de la base de datos
+            $plantas = $this->consultaPlantas();
 
-            $stmt = $bd->prepare($sql);
-            $stmt->execute();
-            $plantas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $caracteristicasBusqueda = [
+                "habitat" => $habitat,
+                "inflorescencia" => $inflorescencia,
+                "filogenia" => $filogenia,
+                "reproduccion" => $reproduccion
+            ];
 
             $cola = new SplQueue(); // Crear una nueva cola
             $visitados = []; // Array para rastrear nodos visitados
@@ -61,9 +65,9 @@ class inicioModel extends connectDB{
             }
             
             // Si no se encontró ninguna planta que coincida
-            http_response_code(200);
+            http_response_code(400);
 
-            return 'planta no existe';
+            return 'La planta no existe';
         } catch (PDOException $e) {
             http_response_code(500);
             echo 'Error '.$e->getMessage() ;
@@ -79,12 +83,12 @@ class inicioModel extends connectDB{
         return null; // Si no se encuentra la planta
     }
 
-    public function plantas(){
+    public function consultaPlantas(){
         try {
             $bd = $this->conexion();
             $bd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $sql = 'SELECT plantas.nombre, habitats.habitat,inflorescencia.tipo,filogenia.tipo,reproduccion.descripcion FROM plantas, reproduccion, filogenia, habitats, inflorescencia WHERE plantas.id_habitat = habitats.id AND plantas.id_inflorescencia = inflorescencia.id AND plantas.id_filogenia = filogenia.id AND plantas.id_reproduccion = reproduccion.id --';
+            $sql = 'SELECT plantas.nombre as nombre, habitats.habitat as habitat,inflorescencia.tipo as inflorescencia,filogenia.tipo as filogenia,reproduccion.descripcion as reproduccion FROM plantas, reproduccion, filogenia, habitats, inflorescencia WHERE plantas.id_habitat = habitats.id AND plantas.id_inflorescencia = inflorescencia.id AND plantas.id_filogenia = filogenia.id AND plantas.id_reproduccion = reproduccion.id --';
 
             $stmt = $bd->prepare($sql);
             $stmt->execute();
@@ -93,7 +97,7 @@ class inicioModel extends connectDB{
             return $resultado;
         }catch (PDOException $e) {
             http_response_code(500);
-            echo 'Error '.$e->getMessage() ;
+            return null;
         }
     }
 

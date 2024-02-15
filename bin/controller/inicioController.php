@@ -20,14 +20,13 @@ if (is_file($config->_Dir_View_().$pagina.$config->_VIEW_())) {
         $accion = $_POST['accion'];
 
         if($accion == 'busqueda'){
-            //caracteristicas del girasol
-            $caracteristicasBusqueda = [
-                "habitat" => "Pradedra",
-                "inflorescencia" => "Capituliforme",
-                "filogenia" => "Angiospermas",
-                "reproduccion" => "Semilla"
-            ];
-            echo $objeto->buscarPlanta($caracteristicasBusqueda);
+            
+            $habitat = $_POST['habitat'];
+            $inflorescencia = $_POST['inflorescencia'];
+            $filogenia = $_POST['filogenia'];
+            $reproduccion = $_POST['reproduccion'];
+
+            echo $objeto->buscarPlanta($habitat,$inflorescencia,$filogenia,$reproduccion);
             exit;
         }		
 

@@ -29,6 +29,17 @@ if (is_file($config->_Dir_View_().$pagina.$config->_VIEW_())) {
             echo $objeto->buscarPlanta($habitat,$inflorescencia,$filogenia,$reproduccion);
             exit;
         }		
+        if($accion == 'agregar'){
+            
+            $nombre = $_POST['nombre'];
+            $habitat = $_POST['habitat'];
+            $inflorescencia = $_POST['inflorescencia'];
+            $filogenia = $_POST['filogenia'];
+            $reproduccion = $_POST['reproduccion'];
+
+            echo $objeto->agregarPlanta($nombre,$habitat,$inflorescencia,$filogenia,$reproduccion);
+            exit;
+        }		
 
 	}
     

@@ -67,7 +67,7 @@ class inicioModel extends connectDB{
                 }
                 
                 // Si no se encontró ninguna planta que coincida
-                http_response_code(400);
+                http_response_code(404);
     
                 return 'La planta no existe';
             }else{
@@ -89,6 +89,39 @@ class inicioModel extends connectDB{
         return null; // Si no se encuentra la planta
     }
 
+    public function agregarPlanta($nombre,$habitat,$inflorescencia, $filogenia, $reproduccion){
+        try {
+            if($this->validar($habitat,$inflorescencia, $filogenia, $reproduccion) and preg_match_all('/^[0-9A-Za-záéíóúÁÉÍÓÚñÑ ]{1,20}$/',$nombre)){
+                
+                $bd = $this->conexion();
+                $bd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                $idCaracteristicas = $this->idCaracteristicas($habitat,$inflorescencia, $filogenia, $reproduccion);
+
+                $sql = 'INSERT INTO plantas (id_habitat, id_reproduccion, id_filogenia, id_inflorescencia, nombre) VALUES (?, ?, ?, ?, ?)';
+    
+                $stmt = $bd->prepare($sql);
+                
+                $stmt->execute(array(
+                    $idCaracteristicas['habitat'],
+                    $idCaracteristicas['reproduccion'],
+                    $idCaracteristicas['filogenia'],
+                    $idCaracteristicas['inflorescencia'],
+                    $nombre
+                ));
+
+                http_response_code(200);
+                return 'Registro Exitoso';
+            }else{
+                http_response_code(400);
+                return 'Datos Invalidos';
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo 'Error '.$e->getMessage() ;
+        }
+    }
+
     public function consultaPlantas(){
         try {
             $bd = $this->conexion();
@@ -104,6 +137,34 @@ class inicioModel extends connectDB{
         }catch (PDOException $e) {
             http_response_code(500);
             return null;
+        }
+    }
+
+    private function idCaracteristicas($habitat,$inflorescencia, $filogenia, $reproduccion){
+        try {
+            if($this->validar($habitat,$inflorescencia, $filogenia, $reproduccion)){
+                
+                $bd = $this->conexion();
+                $bd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                $sql = "SELECT habitats.id as 'habitat', reproduccion.id as 'reproduccion', filogenia.id as 'filogenia', inflorescencia.id as 'inflorescencia' FROM  reproduccion, filogenia, habitats, inflorescencia 
+                WHERE habitats.habitat = ? 
+                AND inflorescencia.tipo = ? 
+                AND filogenia.tipo = ?
+                AND reproduccion.descripcion = ?";
+    
+                $stmt = $bd->prepare($sql);
+                
+                $stmt->execute(array($habitat,$inflorescencia, $filogenia, $reproduccion));
+
+                $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                http_response_code(200);
+                return $resultado;
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return false;
         }
     }
 

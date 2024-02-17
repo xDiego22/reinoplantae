@@ -17,6 +17,9 @@ class inicioModel extends connectDB{
     
                 //plantas traidas de la base de datos
                 $plantas = $this->consultaPlantas();
+
+                // Array para almacenar las plantas coincidentes
+                $plantasCoincidentes = [];
     
                 $cola = new SplQueue(); // Crear una nueva cola
                 $visitados = []; // Array para rastrear nodos visitados
@@ -26,32 +29,16 @@ class inicioModel extends connectDB{
                 }
             
                 while (!$cola->isEmpty()) {
+
                     list($nombrePlanta, $camino) = $cola->dequeue();
                     $planta = $this->obtenerPlantaPorNombre($plantas,$nombrePlanta);
                     
-                    // Verificar si la planta coincide con las características de búsqueda
-                    $coincide = true;
-                    if (!isset($planta['habitat']) || $planta['habitat'] !== $habitat) {
-                        $coincide = false;
-                    }
-    
-                    if (!isset($planta['inflorescencia']) || $planta['inflorescencia'] !== $inflorescencia) {
-                        $coincide = false;
-                    }
-    
-                    if (!isset($planta['filogenia']) || $planta['filogenia'] !== $filogenia) {
-                        $coincide = false;
-                    }
-    
-                    if (!isset($planta['reproduccion']) || $planta['reproduccion'] !== $reproduccion) {
-                        $coincide = false;
-                    }
-                    
-                    if ($coincide) {
-                        // Si encontramos una planta que coincide, devolvemos el nombre de la planta
-                        //aqui
-                        http_response_code(200);
-                        return json_encode($planta);
+                    if (isset($planta['habitat']) && $planta['habitat'] === $habitat &&
+                        isset($planta['inflorescencia']) && $planta['inflorescencia'] === $inflorescencia &&
+                        isset($planta['filogenia']) && $planta['filogenia'] === $filogenia &&
+                        isset($planta['reproduccion']) && $planta['reproduccion'] === $reproduccion) {
+                        // Agregar la planta al array asociativo de plantas coincidentes
+                        $plantasCoincidentes[$nombrePlanta] = $planta;
                     }
                     
                     // Si no coincide, agregamos los nodos vecinos (en este caso, todas las plantas) a la cola
@@ -66,10 +53,15 @@ class inicioModel extends connectDB{
                     }
                 }
                 
-                // Si no se encontró ninguna planta que coincida
-                http_response_code(404);
-    
-                return 'La planta no existe';
+                if (!empty($plantasCoincidentes)) {
+                    // Si se encontraron plantas coincidentes, enviarlas al frontend
+                    http_response_code(200);
+                    return json_encode($plantasCoincidentes);
+                } else{
+                    // Si no se encontró ninguna planta que coincida
+                    http_response_code(404);
+                    return 'La planta no existe';
+                }
             }else{
                 http_response_code(400);
                 return 'Datos Invalidos';
@@ -93,25 +85,32 @@ class inicioModel extends connectDB{
         try {
             if($this->validar($habitat,$inflorescencia, $filogenia, $reproduccion) and preg_match_all('/^[0-9A-Za-záéíóúÁÉÍÓÚñÑ ]{1,20}$/',$nombre)){
                 
-                $bd = $this->conexion();
-                $bd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                if($this->existe($nombre,$habitat,$inflorescencia, $filogenia, $reproduccion)){
 
-                $idCaracteristicas = $this->idCaracteristicas($habitat,$inflorescencia, $filogenia, $reproduccion);
-
-                $sql = 'INSERT INTO plantas (id_habitat, id_reproduccion, id_filogenia, id_inflorescencia, nombre) VALUES (?, ?, ?, ?, ?)';
+                    $bd = $this->conexion();
+                    $bd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-                $stmt = $bd->prepare($sql);
-                
-                $stmt->execute(array(
-                    $idCaracteristicas['habitat'],
-                    $idCaracteristicas['reproduccion'],
-                    $idCaracteristicas['filogenia'],
-                    $idCaracteristicas['inflorescencia'],
-                    $nombre
-                ));
+                    $idCaracteristicas = $this->idCaracteristicas($habitat,$inflorescencia, $filogenia, $reproduccion);
+    
+                    $sql = 'INSERT INTO plantas (id_habitat, id_reproduccion, id_filogenia, id_inflorescencia, nombre) VALUES (?, ?, ?, ?, ?)';
+        
+                    $stmt = $bd->prepare($sql);
+                    
+                    $stmt->execute(array(
+                        $idCaracteristicas['habitat'],
+                        $idCaracteristicas['reproduccion'],
+                        $idCaracteristicas['filogenia'],
+                        $idCaracteristicas['inflorescencia'],
+                        $nombre
+                    ));
+    
+                    http_response_code(200);
+                    return 'Registro Exitoso';
 
-                http_response_code(200);
-                return 'Registro Exitoso';
+                }else{
+                    http_response_code(500);
+                    return "La planta ya existe";
+                }
             }else{
                 http_response_code(400);
                 return 'Datos Invalidos';
@@ -191,6 +190,34 @@ class inicioModel extends connectDB{
         }
         
         return true; // Si todos los valores están en el arreglo de valores válidos, retornar true
+    }
+
+    private function existe($nombre,$habitat,$inflorescencia, $filogenia, $reproduccion){
+        try {
+            if($this->validar($habitat,$inflorescencia, $filogenia, $reproduccion)){
+                
+                $bd = $this->conexion();
+                $bd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                $sql = "SELECT COUNT(*) FROM plantas, reproduccion, filogenia, habitats, inflorescencia 
+                WHERE plantas.nombre = ?
+                AND habitats.habitat = ? 
+                AND inflorescencia.tipo = ? 
+                AND filogenia.tipo = ?
+                AND reproduccion.descripcion = ?";
+    
+                $stmt = $bd->prepare($sql);
+                
+                $stmt->execute(array($nombre,$habitat,$inflorescencia, $filogenia, $reproduccion));
+
+                $resultado = $stmt->fetchColumn();
+
+                return ($resultado > 0) ? false : true;
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return 'ERROR: '.$e->getMessage();
+        }
     }
 
 }

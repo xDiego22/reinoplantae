@@ -141,9 +141,14 @@ function desmarcarOpciones() {
 }
 
 function alertInfoPlanta(planta) {
-  desmarcarOpciones();
   Swal.fire({
     title: `Tu planta es: ${planta.nombre}`,
+    showDenyButton: true,
+    showCancelButton: true,
+    denyButtonColor: "#848484",
+    denyButtonText: "No es mi planta",
+    cancelButtonColor: "#D51C1C",
+    cancelButtonText: "Cancelar",
     html: `<span class='fs-5'><b>Su habitat es:</b> ${planta.habitat}</span>
     <br>
     <span class='fs-5'><b>Inflorescencia:</b> ${planta.inflorescencia}</span>
@@ -152,6 +157,12 @@ function alertInfoPlanta(planta) {
     <br>
     <span class='fs-5'><b>Reproduccion:</b> ${planta.reproduccion}</span>`,
     icon: "success",
+  }).then((result) => {
+    if (result.isDenied) {
+      alertAgregarPlanta();
+    } else {
+      desmarcarOpciones();
+    }
   });
 }
 
@@ -191,6 +202,8 @@ function alertAgregarPlanta() {
         },
         allowOutsideClick: () => !Swal.isLoading(),
       });
+    } else {
+      desmarcarOpciones();
     }
   });
 }

@@ -31,6 +31,7 @@ class inicioModel extends connectDB{
                 while (!$cola->isEmpty()) {
 
                     list($nombrePlanta, $camino) = $cola->dequeue();
+                    //obtiene cada planta de la lista para comprobar si coinciden las caracteristicas
                     $planta = $this->obtenerPlantaPorNombre($plantas,$nombrePlanta);
                     
                     if (isset($planta['habitat']) && $planta['habitat'] === $habitat &&
@@ -71,7 +72,7 @@ class inicioModel extends connectDB{
             echo 'Error '.$e->getMessage() ;
         }
     }
-    // Método para obtener una planta por su nombre
+    // Método para obtener una planta de la lista de todas las plantas por su nombre
     private function obtenerPlantaPorNombre($plantas,$nombrePlanta) {
         foreach ($plantas as $planta) {
             if ($planta['nombre'] === $nombrePlanta) {

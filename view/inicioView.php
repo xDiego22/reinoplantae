@@ -276,6 +276,7 @@
     </div>
 
     <?php require_once('bin/component/scripts.php');?>
+    <script type="text/javascript" src="assets/js/scripts.js"></script>
     
 </body>
 </html>

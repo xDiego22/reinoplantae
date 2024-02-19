@@ -84,7 +84,7 @@ class inicioModel extends connectDB{
 
     public function agregarPlanta($nombre,$habitat,$inflorescencia, $filogenia, $reproduccion){
         try {
-            if($this->validar($habitat,$inflorescencia, $filogenia, $reproduccion) and preg_match_all('/^[0-9A-Za-záéíóúÁÉÍÓÚñÑ ]{1,20}$/',$nombre)){
+            if($this->validar($habitat,$inflorescencia, $filogenia, $reproduccion) and preg_match_all('/^[0-9A-Za-záéíóúÁÉÍÓÚñÑ ]{1,30}$/',$nombre)){
                 
                 if($this->existe($nombre,$habitat,$inflorescencia, $filogenia, $reproduccion)){
 

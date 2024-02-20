@@ -43,15 +43,15 @@ class inicioModel extends connectDB{
                     }
                     
                     // Si no coincide, agregamos los nodos vecinos (en este caso, todas las plantas) a la cola
-                    foreach ($plantas as $planta) {
-                        $nombreVecino = $planta['nombre'];
-                        if (!in_array($nombreVecino, $visitados)) {
-                            $nuevoCamino = $camino;
-                            $nuevoCamino[] = $nombreVecino;
-                            $cola->enqueue([$nombreVecino, $nuevoCamino]);
-                            $visitados[] = $nombreVecino;
-                        }
+                    
+                    $nombreVecino = $planta['nombre'];
+                    if (!in_array($nombreVecino, $visitados)) {
+                        $nuevoCamino = $camino;
+                        $nuevoCamino[] = $nombreVecino;
+                        $cola->enqueue([$nombreVecino, $nuevoCamino]);
+                        $visitados[] = $nombreVecino;
                     }
+                    
                 }
                 
                 if (!empty($plantasCoincidentes)) {

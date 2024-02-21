@@ -15,8 +15,24 @@
             <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalPregunta">
                 Clasificación
             </button>
+            
+            <footer class='mt-3'>
+                <div class="container">
+                    <div class="row">
+                    
+                        <div class="col-lg">
+                            <p>
+                            &copy; 2024 Derechos reservados para grupo de proyecto Diego Aguilar - Luis Perdomo - Ruander Cuello - Cirez Barriga
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
+
+  
+    
         
     <!-- Modal -->
     <div class="modal fade" id="modalPregunta" tabindex="-1" aria-labelledby="modalPreguntaLabel" aria-hidden="true">
